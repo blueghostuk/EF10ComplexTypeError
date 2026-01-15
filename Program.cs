@@ -45,25 +45,10 @@ var jobs = await context.Jobs.ToListAsync();
 foreach (var job in jobs)
 {
   logger.LogInformation("Processing Job: {Job}", job);
-  if (job.Error is not null)
-  {
-    logger.LogWarning("Job {Job} has an error", job);
-    logger.LogWarning("  Error Code: {ErrorCode}", job.Error.Code);
-    logger.LogWarning("  Error Message: {ErrorMessage}", job.Error.Message);
-    //if (job.Error.InnerError is not null)
-    //{
-    //  logger.LogWarning("    Inner Error Code: {InnerErrorCode}", job.Error.InnerError.Code);
-    //  logger.LogWarning("    Inner Error Message: {InnerErrorMessage}", job.Error.InnerError.Message);
-    //}
-  }
-  else
-  {
-    logger.LogInformation("Job {Job} has no error", job);
-  }
   try
   {
     var original = context.Entry(job).OriginalValues.ToObject() as Job;
-    logger.LogInformation("Retrieve Original Values for Job: {Job}", job);
+    logger.LogInformation("Retrieved Original Values for Job: {Job}", job);
   }
   catch (Exception ex)
   {
