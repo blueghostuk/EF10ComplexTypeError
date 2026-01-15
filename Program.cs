@@ -11,10 +11,11 @@ await using var context = new JobContext();
 await context.Database.EnsureDeletedAsync();
 await context.Database.EnsureCreatedAsync();
 
-context.Jobs.Add(new() { Id = Guid.NewGuid() });
+context.Jobs.Add(new() { Id = Guid.NewGuid(), Name = "Job with No Error" });
 context.Jobs.Add(new()
 {
   Id = Guid.NewGuid(),
+  Name = "Job with Error + Inner Error",
   Error = new()
   {
     Code = "500",
@@ -29,6 +30,7 @@ context.Jobs.Add(new()
 context.Jobs.Add(new()
 {
   Id = Guid.NewGuid(),
+  Name = "Job with Error only",
   Error = new()
   {
     Code = "400",
@@ -42,10 +44,10 @@ context.ChangeTracker.Clear();
 var jobs = await context.Jobs.ToListAsync();
 foreach (var job in jobs)
 {
-  logger.LogInformation("Processing Job: {JobId}", job.Id);
+  logger.LogInformation("Processing Job: {Job}", job);
   if (job.Error is not null)
   {
-    logger.LogWarning("Job {JobId} has an error", job.Id);
+    logger.LogWarning("Job {Job} has an error", job);
     logger.LogWarning("  Error Code: {ErrorCode}", job.Error.Code);
     logger.LogWarning("  Error Message: {ErrorMessage}", job.Error.Message);
     if (job.Error.InnerError is not null)
@@ -54,14 +56,18 @@ foreach (var job in jobs)
       logger.LogWarning("    Inner Error Message: {InnerErrorMessage}", job.Error.InnerError.Message);
     }
   }
+  else
+  {
+    logger.LogInformation("Job {Job} has no error", job);
+  }
   try
   {
     var original = context.Entry(job).OriginalValues.ToObject() as Job;
-    logger.LogInformation("Retrieve Original Values for Job: {JobId}", job.Id);
+    logger.LogInformation("Retrieve Original Values for Job: {Job}", job);
   }
   catch (Exception ex)
   {
-    logger.LogError(ex, "Error retrieving original values for Job: {JobId}", job.Id);
+    logger.LogError(ex, "Error retrieving original values for Job: {Job}", job);
   }
 }
 
@@ -70,7 +76,7 @@ Console.WriteLine("Press any key to exit...");
 Console.ReadKey();
 
 public class JobContext : DbContext
-{ 
+{
   public DbSet<Job> Jobs { get; set; }
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -86,7 +92,13 @@ public class JobContext : DbContext
 public class Job
 {
   public Guid Id { get; set; }
+  public required String Name { get; set; }
   public Error? Error { get; set; }
+
+  public override string ToString()
+  {
+    return $"Job(Id={Id}, Name={Name})";
+  }
 }
 
 public class Error
