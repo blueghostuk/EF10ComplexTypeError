@@ -20,11 +20,11 @@ context.Jobs.Add(new()
   {
     Code = "500",
     Message = "Internal Server Error",
-    InnerError = new()
-    {
-      Code = "501",
-      Message = "Not Implemented"
-    }
+    //InnerError = new()
+    //{
+    //  Code = "501",
+    //  Message = "Not Implemented"
+    //}
   }
 });
 context.Jobs.Add(new()
@@ -50,11 +50,11 @@ foreach (var job in jobs)
     logger.LogWarning("Job {Job} has an error", job);
     logger.LogWarning("  Error Code: {ErrorCode}", job.Error.Code);
     logger.LogWarning("  Error Message: {ErrorMessage}", job.Error.Message);
-    if (job.Error.InnerError is not null)
-    {
-      logger.LogWarning("    Inner Error Code: {InnerErrorCode}", job.Error.InnerError.Code);
-      logger.LogWarning("    Inner Error Message: {InnerErrorMessage}", job.Error.InnerError.Message);
-    }
+    //if (job.Error.InnerError is not null)
+    //{
+    //  logger.LogWarning("    Inner Error Code: {InnerErrorCode}", job.Error.InnerError.Code);
+    //  logger.LogWarning("    Inner Error Message: {InnerErrorMessage}", job.Error.InnerError.Message);
+    //}
   }
   else
   {
@@ -105,6 +105,5 @@ public class Error
 {
   public required string Code { get; set; }
   public required string Message { get; set; }
-  public Error? InnerError { get; set; }
-
+  //public Error? InnerError { get; set; }
 }
